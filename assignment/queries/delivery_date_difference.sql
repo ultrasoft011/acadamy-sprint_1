@@ -30,26 +30,21 @@ ES:
 - Solo usamos pedidos que están en estado 'delivered' y que tienen fecha real de entrega (no NULL).
 */
 
+-- 1. Check what we have on the tables
+SELECT *
+FROM olist_orders
+LIMIT 10;
+
+SELECT *
+FROM olist_customers
+LIMIT 10;
+
+-- 2. JOIN orders and customers to get a new table with order_id, customer_id and customer_state
 SELECT
-    c.customer_state AS State,
-
-    -- Average delivery difference in days:
-    -- We convert both dates into day numbers using julianday(), then subtract.
-    AVG(
-        CAST(julianday(STRFTIME('%Y-%m-%d', o.order_estimated_delivery_date)) AS INTEGER)
-        -
-        CAST(julianday(STRFTIME('%Y-%m-%d', o.order_delivered_customer_date)) AS INTEGER)
-    ) AS Delivery_Difference
-
-FROM orders AS o
-
--- Join customers to get the customer's state (orders table doesn't have state)
-JOIN customers AS c
-    ON o.customer_id = c.customer_id
-
--- Filter only delivered orders with a valid delivery date
-WHERE o.order_status = 'delivered'
-  AND o.order_delivered_customer_date IS NOT NULL
-
--- Group by state so we get one result per state
-GROUP BY c.customer_state;
+  o.order_id,
+  o.customer_id,
+  c.customer_state
+FROM olist_orders o
+JOIN olist_customers c
+  ON c.customer_id = o.customer_id
+LIMIT 10;
