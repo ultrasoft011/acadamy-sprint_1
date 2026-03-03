@@ -25,3 +25,6 @@ Thumbs.db
 
 # datasets / db
 assignment/dataset/
+*.db
+*.sqlite
+*.sqlite3
