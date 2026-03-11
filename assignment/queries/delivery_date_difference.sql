@@ -31,6 +31,7 @@ ES:
 */
 
 -- 1. Check what we have on the tables
+/*
 SELECT *
 FROM olist_orders
 LIMIT 10;
@@ -48,3 +49,62 @@ FROM olist_orders o
 JOIN olist_customers c
   ON c.customer_id = o.customer_id
 LIMIT 10;
+
+-- 3. Deliveries that were actually delivered and have a delivered date
+SELECT
+  o.order_id,
+  c.customer_state,
+  o.order_status,
+  o.order_delivered_customer_date
+FROM olist_orders o
+JOIN olist_customers c
+  ON c.customer_id = o.customer_id
+WHERE o.order_status = 'delivered'
+  AND o.order_delivered_customer_date IS NOT NULL
+LIMIT 10;
+
+-- 4. Add the estimated delivery date too
+SELECT
+  o.order_id,
+  c.customer_state,
+  o.order_estimated_delivery_date,
+  o.order_delivered_customer_date
+FROM olist_orders o
+JOIN olist_customers c
+  ON c.customer_id = o.customer_id
+WHERE o.order_status = 'delivered'
+  AND o.order_delivered_customer_date IS NOT NULL;
+
+
+-- 5. Calculate the difference between estimated date and delivered date
+SELECT
+  o.order_id,
+  c.customer_state,
+  o.order_estimated_delivery_date,
+  o.order_delivered_customer_date,
+  julianday(STRFTIME('%Y-%m-%d', o.order_estimated_delivery_date)) -
+  julianday(STRFTIME('%Y-%m-%d', o.order_delivered_customer_date)) AS delivery_difference
+FROM olist_orders o
+JOIN olist_customers c
+  ON c.customer_id = o.customer_id
+WHERE o.order_status = 'delivered'
+  AND o.order_delivered_customer_date IS NOT NULL
+LIMIT 10;
+*/
+
+-- 6. Finally, we need to calculate the average delivery difference per state
+SELECT
+  c.customer_state AS State,
+  CAST(
+    AVG(
+      julianday(date(o.order_estimated_delivery_date)) -
+      julianday(date(o.order_delivered_customer_date))
+    ) AS INTEGER
+  ) AS Delivery_Difference
+FROM olist_orders o
+JOIN olist_customers c
+  ON c.customer_id = o.customer_id
+WHERE o.order_status = 'delivered'
+  AND o.order_delivered_customer_date IS NOT NULL
+GROUP BY c.customer_state
+ORDER BY Delivery_Difference ASC, State ASC;

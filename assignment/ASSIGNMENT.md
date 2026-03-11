@@ -36,11 +36,7 @@ Next, please complete all the functions with a **TODO** mark inside the `src/tra
 
 Lastly, you can check whether your queries meet the requirements by running the provided tests with:
 
-```console
-$ pytest tests/test_transform.py
-```
 
-You can also validate how the output from the query should look like by checking the `.json` file under `tests/query_results` with the same name as the `.sql` file.
 
 ## 4. Visualize your results
 
